@@ -1,3 +1,4 @@
+import { afterEach, describe, expect, jest, test } from '@jest/globals';
 import { Text, useHeaderHeight } from '@react-navigation/elements';
 import { NavigationContainer } from '@react-navigation/native';
 import {
@@ -45,7 +46,7 @@ afterEach(() => {
   jest.resetAllMocks();
 });
 
-it('renders a native-stack navigator with screens', async () => {
+test('renders a native-stack navigator with screens', async () => {
   const Test = ({
     route,
     navigation,
@@ -78,7 +79,7 @@ it('renders a native-stack navigator with screens', async () => {
 });
 
 describe('useHeaderHeight in native-stack', () => {
-  it('returns header height on Android', async () => {
+  test('returns header height on Android', async () => {
     Platform.OS = 'android';
 
     let headerHeight;
@@ -105,7 +106,7 @@ describe('useHeaderHeight in native-stack', () => {
     expect(headerHeight).toBe(64);
   });
 
-  it('returns header height on iOS', async () => {
+  test('returns header height on iOS', async () => {
     Platform.OS = 'ios';
 
     let headerHeight;
@@ -132,7 +133,7 @@ describe('useHeaderHeight in native-stack', () => {
     expect(headerHeight).toBe(44);
   });
 
-  it('returns header height on Web', async () => {
+  test('returns header height on Web', async () => {
     Platform.OS = 'web';
 
     let headerHeight;
@@ -159,7 +160,7 @@ describe('useHeaderHeight in native-stack', () => {
     expect(headerHeight).toBe(64);
   });
 
-  it('returns header height in modal on iOS', async () => {
+  test('returns header height in modal on iOS', async () => {
     Platform.OS = 'ios';
 
     let headerHeight;
@@ -192,7 +193,7 @@ describe('useHeaderHeight in native-stack', () => {
     expect(headerHeight).toBe(56);
   });
 
-  it('returns header height with transparent header on iOS', async () => {
+  test('returns header height with transparent header on iOS', async () => {
     Platform.OS = 'ios';
 
     let headerHeight;
@@ -232,7 +233,7 @@ describe('useHeaderHeight in native-stack', () => {
     expect(headerHeight).toBe(56);
   });
 
-  it('returns header height with transparent header on Android', async () => {
+  test('returns header height with transparent header on Android', async () => {
     Platform.OS = 'android';
 
     let headerHeight;
@@ -272,7 +273,7 @@ describe('useHeaderHeight in native-stack', () => {
     expect(headerHeight).toBe(64);
   });
 
-  it("doesn't return header height with headerShown: false on iOS", async () => {
+  test("doesn't return header height with headerShown: false on iOS", async () => {
     Platform.OS = 'ios';
 
     let headerHeight;
@@ -303,7 +304,7 @@ describe('useHeaderHeight in native-stack', () => {
     expect(headerHeight).toBe(44);
   });
 
-  it("doesn't return header height with headerShown: false on Android", async () => {
+  test("doesn't return header height with headerShown: false on Android", async () => {
     Platform.OS = 'android';
 
     let headerHeight;
@@ -334,7 +335,7 @@ describe('useHeaderHeight in native-stack', () => {
     expect(headerHeight).toBe(64);
   });
 
-  it("doesn't return header height with headerShown: false on Web", async () => {
+  test("doesn't return header height with headerShown: false on Web", async () => {
     Platform.OS = 'web';
 
     let headerHeight;
@@ -365,7 +366,7 @@ describe('useHeaderHeight in native-stack', () => {
     expect(headerHeight).toBe(64);
   });
 
-  it('returns header height in nested stack on iOS', async () => {
+  test('returns header height in nested stack on iOS', async () => {
     Platform.OS = 'ios';
 
     let headerHeight;
@@ -399,7 +400,7 @@ describe('useHeaderHeight in native-stack', () => {
     expect(headerHeight).toBe(44);
   });
 
-  it('returns parent header height in nested stack when headerShown: false on iOS', async () => {
+  test('returns parent header height in nested stack when headerShown: false on iOS', async () => {
     Platform.OS = 'ios';
 
     let headerHeight;
@@ -437,7 +438,7 @@ describe('useHeaderHeight in native-stack', () => {
     expect(headerHeight).toBe(44);
   });
 
-  it('returns header height 0 in nested stack when headerShown: false on both screens on iOS', async () => {
+  test('returns header height 0 in nested stack when headerShown: false on both screens on iOS', async () => {
     Platform.OS = 'ios';
 
     let headerHeight;
@@ -471,7 +472,7 @@ describe('useHeaderHeight in native-stack', () => {
     expect(headerHeight).toBe(0);
   });
 
-  it('returns header height in nested stack on Android', async () => {
+  test('returns header height in nested stack on Android', async () => {
     Platform.OS = 'android';
 
     let headerHeight;
@@ -505,7 +506,7 @@ describe('useHeaderHeight in native-stack', () => {
     expect(headerHeight).toBe(64);
   });
 
-  it('returns parent header height in nested stack when headerShown: false on Android', async () => {
+  test('returns parent header height in nested stack when headerShown: false on Android', async () => {
     Platform.OS = 'android';
 
     let headerHeight;
@@ -543,7 +544,7 @@ describe('useHeaderHeight in native-stack', () => {
     expect(headerHeight).toBe(64);
   });
 
-  it('returns header height 0 in nested stack when headerShown: false on both screens on Android', async () => {
+  test('returns header height 0 in nested stack when headerShown: false on both screens on Android', async () => {
     Platform.OS = 'android';
 
     let headerHeight;
@@ -577,7 +578,7 @@ describe('useHeaderHeight in native-stack', () => {
     expect(headerHeight).toBe(0);
   });
 
-  it('returns header height in nested stack on Web', async () => {
+  test('returns header height in nested stack on Web', async () => {
     Platform.OS = 'web';
 
     let headerHeight;
@@ -611,7 +612,7 @@ describe('useHeaderHeight in native-stack', () => {
     expect(headerHeight).toBe(64);
   });
 
-  it('returns parent header height in nested stack when headerShown: false on Web', async () => {
+  test('returns parent header height in nested stack when headerShown: false on Web', async () => {
     Platform.OS = 'web';
 
     let headerHeight;
@@ -649,7 +650,7 @@ describe('useHeaderHeight in native-stack', () => {
     expect(headerHeight).toBe(64);
   });
 
-  it('returns header height 0 in nested stack when headerShown: false on both screens on Web', async () => {
+  test('returns header height 0 in nested stack when headerShown: false on both screens on Web', async () => {
     Platform.OS = 'web';
 
     let headerHeight;
