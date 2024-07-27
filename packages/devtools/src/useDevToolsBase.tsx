@@ -3,7 +3,7 @@ import type {
   NavigationContainerRef,
   NavigationState,
 } from '@react-navigation/core';
-import deepEqual from 'deep-equal';
+import isEqual from 'fast-deep-equal';
 import * as React from 'react';
 
 import { parseErrorStack } from './parseErrorStack';
@@ -154,7 +154,7 @@ export function useDevToolsBase(
         // Don't show the action in dev tools if the state is what we sent to reset earlier
         if (
           lastResetRef.current &&
-          deepEqual(lastResetRef.current, e.data.state)
+          isEqual(lastResetRef.current, e.data.state)
         ) {
           lastStateRef.current = undefined;
           return;
@@ -168,7 +168,7 @@ export function useDevToolsBase(
         lastStateRef.current = state;
 
         // If we don't have an action and the state didn't change, then it's probably extraneous
-        if (lastChange === undefined && deepEqual(state, lastState)) {
+        if (lastChange === undefined && isEqual(state, lastState)) {
           return;
         }
 
