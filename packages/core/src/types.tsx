@@ -7,6 +7,7 @@ import type {
   PartialState,
   Route,
 } from '@react-navigation/routers';
+import type { ParsedQs } from 'qs';
 import type * as React from 'react';
 
 declare global {
@@ -698,11 +699,19 @@ export type NavigatorScreenParams<
           };
     }[keyof ParamList];
 
+export type ParseConfig = {
+  [key: string]: ((value: ParsedQs) => any) | ParseConfig;
+};
+
+export type StringifyConfig = {
+  [key: string]: ((value: any) => string) | StringifyConfig;
+};
+
 export type PathConfig<ParamList extends {}> = {
   path?: string;
   exact?: boolean;
   parse?: Record<string, (value: string) => any>;
-  stringify?: Record<string, (value: any) => string>;
+  stringify?: StringifyConfig;
   screens?: PathConfigMap<ParamList>;
   initialRouteName?: keyof ParamList;
 };

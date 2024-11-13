@@ -4,18 +4,16 @@ import type {
   PartialState,
 } from '@react-navigation/routers';
 import escape from 'escape-string-regexp';
-import * as queryString from 'query-string';
+import queryString, { type ParsedQs } from 'qs';
 
 import findFocusedRoute from './findFocusedRoute';
-import type { PathConfigMap } from './types';
+import type { ParseConfig, PathConfigMap } from './types';
 import validatePathConfig from './validatePathConfig';
 
 type Options<ParamList extends {}> = {
   initialRouteName?: string;
   screens: PathConfigMap<ParamList>;
 };
-
-type ParseConfig = Record<string, (value: string) => any>;
 
 type RouteConfig = {
   screen: string;
@@ -335,9 +333,11 @@ const matchAgainstConfigs = (remaining: string, configs: RouteConfig[]) => {
 
             if (value) {
               const key = p.replace(/^:/, '').replace(/\?$/, '');
-              acc[key] = routeConfig?.parse?.[key]
-                ? routeConfig.parse[key](value)
-                : value;
+              const parser = routeConfig?.parse?.[key];
+              acc[key] =
+                typeof parser === 'function'
+                  ? parser(value as unknown as ParsedQs)
+                  : value;
             }
 
             return acc;
@@ -600,23 +600,40 @@ const createNestedStateObject = (
   return state;
 };
 
-const parseQueryParams = (
-  path: string,
-  parseConfig?: Record<string, (value: string) => any>
-) => {
+const parseQueryParams = (path: string, parseConfig?: ParseConfig) => {
   const query = path.split('?')[1];
-  const params = queryString.parse(query);
+  let params = queryString.parse(query, { plainObjects: true });
 
   if (parseConfig) {
-    Object.keys(params).forEach((name) => {
-      if (
-        Object.hasOwnProperty.call(parseConfig, name) &&
-        typeof params[name] === 'string'
-      ) {
-        params[name] = parseConfig[name](params[name] as string);
-      }
-    });
+    params = applyParseConfig(params, parseConfig);
   }
 
   return Object.keys(params).length ? params : undefined;
 };
+
+const applyParseConfig = (params: ParsedQs = {}, config: ParseConfig = {}) =>
+  Object.entries(params).reduce<Record<string, any>>((acc, [key, value]) => {
+    const parser = Object.hasOwnProperty.call(config, key)
+      ? config[key]
+      : undefined;
+
+    if (parser) {
+      if (typeof parser === 'function') {
+        if (typeof value === 'string') {
+          acc[key] = parser(value as unknown as ParsedQs);
+        } else if (Array.isArray(value)) {
+          acc[key] = value.map((v) => parser(v as ParsedQs));
+        } else {
+          acc[key] = value;
+        }
+      } else if (parser === Object(parser) && value === Object(value)) {
+        acc[key] = applyParseConfig(value as ParsedQs, parser);
+      } else {
+        acc[key] = value;
+      }
+    } else {
+      acc[key] = value;
+    }
+
+    return acc;
+  }, {});

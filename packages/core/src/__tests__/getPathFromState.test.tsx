@@ -1714,3 +1714,120 @@ it('uses nearest parent wildcard match for unmatched paths', () => {
     )
   ).toBe('/404');
 });
+
+it('converts state to path string with nested params', () => {
+  const path =
+    '/bar/foo?count=10&valid=true&arr[]=bloom&arr[]=vroom&obj[first]=first&obj[second]=second&deep[level1][level2][]=deep1&deep[level1][level2][]=deep2';
+  const config = {
+    screens: {
+      Bar: {
+        path: 'bar',
+        screens: {
+          Foo: {
+            path: 'foo',
+          },
+        },
+      },
+    },
+  };
+
+  const state = {
+    routes: [
+      {
+        name: 'Bar',
+        state: {
+          routes: [
+            {
+              name: 'Foo',
+              params: {
+                count: 10,
+                valid: true,
+                arr: ['bloom', 'vroom'],
+                obj: {
+                  first: 'first',
+                  second: 'second',
+                },
+                deep: {
+                  level1: {
+                    level2: ['deep1', 'deep2'],
+                  },
+                },
+              },
+            },
+          ],
+        },
+      },
+    ],
+  };
+
+  expect(getPathFromState<object>(state, config)).toBe(path);
+  expect(
+    getPathFromState<object>(
+      getStateFromPath<object>(path, config) as State,
+      config
+    )
+  ).toBe(path);
+});
+
+it('converts state to path string with nested params and config', () => {
+  const path =
+    '/bar/foo?count=20&valid=true&arr[]=bloom-bloom&arr[]=vroom-vroom&obj[first]=first1&obj[second]=second';
+  const config = {
+    screens: {
+      Bar: {
+        path: 'bar',
+        screens: {
+          Foo: {
+            path: 'foo',
+            stringify: {
+              count: (count: number) => count * 2,
+              arr: (item: string) => `${item}-${item}`,
+              obj: {
+                first: (item: string) => `${item}1`,
+              },
+            },
+            parse: {
+              count: (count: number) => Number(count) / 2,
+              arr: (item: string) => item.split('-')[0],
+              obj: {
+                first: (item: string) => item.substring(0, item.length - 1),
+              },
+            },
+          },
+        },
+      },
+    },
+  };
+
+  const state = {
+    routes: [
+      {
+        name: 'Bar',
+        state: {
+          routes: [
+            {
+              name: 'Foo',
+              params: {
+                count: 10,
+                valid: true,
+                arr: ['bloom', 'vroom'],
+                obj: {
+                  first: 'first',
+                  second: 'second',
+                },
+              },
+            },
+          ],
+        },
+      },
+    ],
+  };
+
+  expect(getPathFromState<object>(state, config)).toBe(path);
+  expect(
+    getPathFromState<object>(
+      getStateFromPath<object>(path, config) as State,
+      config
+    )
+  ).toBe(path);
+});

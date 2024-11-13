@@ -3,10 +3,10 @@ import type {
   PartialState,
   Route,
 } from '@react-navigation/routers';
-import * as queryString from 'query-string';
+import queryString from 'qs';
 
 import fromEntries from './fromEntries';
-import type { PathConfig, PathConfigMap } from './types';
+import type { PathConfig, PathConfigMap, StringifyConfig } from './types';
 import validatePathConfig from './validatePathConfig';
 
 type Options<ParamList extends {}> = {
@@ -15,8 +15,6 @@ type Options<ParamList extends {}> = {
 };
 
 type State = NavigationState | Omit<PartialState<NavigationState>, 'stale'>;
-
-type StringifyConfig = Record<string, (value: any) => string>;
 
 type ConfigItem = {
   pattern?: string;
@@ -115,12 +113,7 @@ export default function getPathFromState<ParamList extends {}>(
       if (route.params) {
         const stringify = currentOptions[route.name]?.stringify;
 
-        const currentParams = fromEntries(
-          Object.entries(route.params).map(([key, value]) => [
-            key,
-            stringify?.[key] ? stringify[key](value) : String(value),
-          ])
-        );
+        const currentParams = applyStringifyConfig(route.params, stringify);
 
         if (pattern) {
           Object.assign(allParams, currentParams);
@@ -220,7 +213,10 @@ export default function getPathFromState<ParamList extends {}>(
         }
       }
 
-      const query = queryString.stringify(focusedParams, { sort: false });
+      const query = queryString.stringify(focusedParams, {
+        encodeValuesOnly: true,
+        arrayFormat: 'brackets',
+      });
 
       if (query) {
         path += `?${query}`;
@@ -295,3 +291,30 @@ const createNormalizedConfigs = (
       return [name, result];
     })
   );
+
+const applyStringifyConfig = (
+  params: object = {},
+  config: StringifyConfig = {}
+) =>
+  Object.entries(params).reduce<Record<string, any>>((acc, [key, value]) => {
+    const stringify = Object.hasOwnProperty.call(config, key)
+      ? config[key]
+      : undefined;
+
+    if (stringify) {
+      if (typeof stringify === 'function') {
+        if (Array.isArray(value)) {
+          acc[key] = value.map((v) => stringify(v));
+        } else {
+          acc[key] = stringify(value);
+        }
+      } else if (stringify === Object(stringify) && value === Object(value)) {
+        acc[key] = applyStringifyConfig(value, stringify);
+      } else {
+        acc[key] = value;
+      }
+    } else {
+      acc[key] = value;
+    }
+    return acc;
+  }, {});
